@@ -1,0 +1,155 @@
+<?php session_start(); ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>CMPE 273 Face Recognizer</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/superhero/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <form method="POST" enctype="multipart/form-data" action="http://localhost:5000/match_user" id="myform">
+    <input name="img_val" id="img_val" value="" type="hidden">
+  </form>
+
+  <form method="POST" enctype="multipart/form-data" action="http://localhost:5000/send_mail" id="send_mail_form">
+    
+  </form>
+  <style>
+    
+    #videoElement {
+        width: 100%;
+        height: 375px;
+        background-color: #666;
+        border: 10px #FFF solid;
+    }
+    img{
+        width: 200px;
+        height: 200px;
+    }
+
+    .label {
+      min-width: 200px;
+      display: inline-block;
+      text-align: left;
+    }
+  
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="face_recognizer.html">Face Recognizer</a>
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+      <ul class="nav navbar-nav">
+        <li><a href="face_recognizer.html">Home</a></li>
+        <li><a href="create_user.html">Create New User</a></li>
+        <li class="active"><a href="verify_user.html">Verify User</a></li>
+        <li><a href="attendance.html">Attendance</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+         <li><a href='face_recognizer.html'><span class='glyphicon glyphicon-user'></span> Login</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="row">
+
+    <div class="col-sm-6">
+      <h1>User Verification</h1>
+      {% for key, value in output_dict.iteritems() %}
+         
+        <h3><span class="label label-default">{{ key }} : {{ value }} </span></h3>
+            
+      {% endfor %}
+    </div>
+
+    <div id="container" class="col-sm-6">
+        <video autoplay="true" id="videoElement">
+
+        </video>
+        <button type="button" id="snap" class="btn btn-primary center-block">Verify</button>
+      </div>
+  
+    <div id="container" class="col-sm-6">
+      <canvas id="canvas" width="600" height="375" style="display: none;"></canvas>
+    </div>
+
+  </div>
+</div>
+<div id="hidden_form_container" style="display:none;"></div>
+
+
+<script>
+  var video = document.querySelector("video");
+
+  // Elements for taking the snapshot
+  var canvas = document.getElementById('canvas');
+  var context = canvas.getContext('2d');
+  var video = document.getElementById('videoElement');
+
+  var label_name = document.getElementById('name_lbl');
+  var label_sjsu = document.getElementById('sjsu_lbl');
+  var label_email = document.getElementById('email_lbl');
+ 
+  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
+   
+  if (navigator.getUserMedia) {       
+      navigator.getUserMedia({video: true}, handleVideo, videoError);
+  }
+   
+  function handleVideo(stream) {
+      video.src = window.URL.createObjectURL(stream);
+      video.play();
+  }
+   
+  function videoError(e) {
+       alert('getUserMedia() is not supported in your browser');
+  }
+
+  // Trigger photo take
+  document.getElementById("snap").addEventListener("click", function() {
+    context.drawImage(video, 0, 0, 600, 375);
+
+    $('#img_val').val(canvas.toDataURL("image/png"));
+      document.getElementById("myform").submit();
+
+    /* 
+
+    if (label_name.style.display === 'none') {
+        label_name.style.display = 'block';
+    } else {
+        label_name.style.display = 'none';
+    } */
+      var imageObj = new Image();
+
+      imageObj.onload = function() {
+        //context.drawImage(imageObj, 69, 50);
+
+        context.drawImage(imageObj, 450, 220);
+      };
+      imageObj.src = 'verified_smallest.png'; 
+
+      
+  });
+
+  document.getElementById("send_mail_btn").addEventListener("click", function() {
+    document.getElementById("send_mail_form").submit();
+  });
+
+</script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,172 @@
+<?php session_start(); ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>CMPE 273 Face Recognizer</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/superhero/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+  <style>
+    
+    #videoElement {
+        width: 100%;
+        height: 375px;
+        background-color: #666;
+        border: 10px #FFF solid;
+    }
+    img{
+        width: 375px;
+        height: 375px;
+    }
+    span{
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="face_recognizer.html">Face Recognizer</a>
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+      <ul class="nav navbar-nav">
+        <li><a href="face_recognizer.html">Home</a></li>
+        <li class="active"><a href="create_user.html">Create New User</a></li>
+        <li><a href="verify_user.html">Verify User</a></li>
+        <li><a href="attendance.html">Attendance</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+         <li><a href='face_recognizer.html'><span class='glyphicon glyphicon-user'></span> Login</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="container">
+  <div class="row">
+      <div class="col-sm-6">
+      
+        <form id="main_form" enctype="multipart/form-data" method="post" action="http://localhost:5000/upload">
+            
+            <div class="form-group">
+              <label for="name" class="cols-sm-2 control-label">Your Name</label>
+              <div class="cols-sm-10">
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="fa fa-user fa" aria-hidden="true"></i></span>
+                  <input type="text" class="form-control" name="name" id="name"  placeholder="Enter your Name"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email" class="cols-sm-2 control-label">Your Email</label>
+              <div class="cols-sm-10">
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="fa fa-envelope fa" aria-hidden="true"></i></span>
+                  <input type="text" class="form-control" name="email" id="email"  placeholder="Enter your Email"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="username" class="cols-sm-2 control-label">SJSU ID</label>
+              <div class="cols-sm-10">
+                <div class="input-group">
+                  <span class="input-group-addon"><i class="fa fa-users fa" aria-hidden="true"></i></span>
+                  <input type="text" class="form-control" name="sjsu_id" id="sjsu_id"  placeholder="Enter your SJSU ID"/>
+                </div>
+              </div>
+            </div>
+            
+              <input type="file" name="pic" accept="image/*" style="color: #FFFFFF">
+            
+
+            <button type="submit" id="upload_img" class="btn btn-primary center-block">Submit</button>       
+
+            <input name="img_val" id="img_val" value="" type="hidden">
+            <input name="which_image" id="which_image" value="" type="hidden">
+        </form>    
+
+    </div>
+
+
+    <div id="container" class="col-sm-6">
+      <video autoplay="true" id="videoElement">
+       
+      </video>
+      <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
+      <button type="button" id="capture_img" class="btn btn-primary center-block">Take Picture</button>
+    </div>
+    
+  </div>
+  
+<script>
+  var video = document.querySelector("video");
+
+  // Elements for taking the snapshot
+  var canvas = document.getElementById('canvas');
+  var context = canvas.getContext('2d');
+  var video = document.getElementById('videoElement');
+ 
+  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
+   
+  if (navigator.getUserMedia) {       
+      navigator.getUserMedia({video: true}, handleVideo, videoError);
+  }
+   
+  function handleVideo(stream) {
+      video.src = window.URL.createObjectURL(stream);
+      video.play();
+  }
+   
+  function videoError(e) {
+       alert('getUserMedia() is not supported in your browser');
+  }
+
+  // Trigger photo take
+  document.getElementById("capture_img").addEventListener("click", function() {
+    var x = document.getElementById('videoElement');
+    if (x.style.display === 'none') {
+        x.style.display = 'block';
+    } else {
+        x.style.display = 'none';
+    }
+    var y = document.getElementById('canvas');
+    if (y.style.display === 'none') {
+        y.style.display = 'block';
+    } else {
+        y.style.display = 'none';
+    }
+
+    var z = document.getElementById('capture_img');
+    if (z.style.display === 'none') {
+        z.style.display = 'block';
+    } else {
+        z.style.display = 'none';
+    }
+
+    context.drawImage(video, 0, 0, 600, 375);
+
+    $('#img_val').val(canvas.toDataURL("image/png"));
+    $('#which_image').val(1);
+
+  });
+
+</script>
+
+<div id="hidden_form_container" style="display:none;"></div>
+
+</body>
+
+
+</html>
